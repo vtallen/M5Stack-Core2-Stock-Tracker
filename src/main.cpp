@@ -1,10 +1,13 @@
 #include <Arduino.h>
 #include <M5Core2.h>
 #include <SPI.h>
+#include <WiFi.h>
 #include <Wire.h>
 #include <lvgl.h>
 
 #include "globalConfig.h"
+
+#include "helpers/StockAPI.h"
 
 #include "screens/mainScreen.h"
 
@@ -106,20 +109,36 @@ void init_touch_driver() {
 }
 
 void setup() {
+  Serial.begin(115200);
+
   tft_lv_initialization();
   init_disp_driver();
   init_touch_driver();
 
   Config::loadConfig();
   Config::loadStocksFile();
+
+  // WiFi.begin(Config::g_WifiSsid.c_str(), Config::g_WifiPassword.c_str());
+
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(1000);
+  //   Serial.println("Connecting to WiFi...");
+  // }
+
+  // Serial.println("WiFi connected");
+  // Serial.print("IP address: ");
+  // Serial.println(WiFi.localIP());
+
   MainScreen::init();
   Config::g_stocks.push_back(Stock{"AAPL", "Apple", 113.56});
   Config::g_stocks.push_back(Stock{"GOOGL", "Google", 2568.79});
+
+  StockAPI::testParse();
 }
 
 void loop() {
   M5.update();
   lv_task_handler();
-  
+
   MainScreen::update();
 }
