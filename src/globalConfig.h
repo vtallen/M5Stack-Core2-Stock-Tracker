@@ -13,7 +13,6 @@ extern std::vector<Stock> g_stocks;
 
 void loadConfig();
 void loadStocksFile();
-void test();
 
 } // namespace Config
 #endif
