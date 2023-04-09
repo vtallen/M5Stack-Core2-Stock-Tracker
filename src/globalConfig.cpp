@@ -127,4 +127,28 @@ void loadStocksFile() {
   SD.end();
 }
 
+void writeStocksFile() {
+  SD.begin(4);
+  const size_t capacity {JSON_OBJECT_SIZE(g_stocks.size()) * JSON_OBJECT_SIZE(sizeof(Stock))};
+  DynamicJsonDocument doc(capacity);
+
+  JsonArray stockArray {doc.to<JsonArray>()};
+
+  for (auto& stock : g_stocks) {
+    JsonObject stockObj {stockArray.createNestedObject()};
+
+    stockObj["ticker"] = stock.getTicker();
+    stockObj["price"] = stock.getPrice();
+    stockObj["company_name"] = stock.getCompanyName();
+  }
+
+  File file = SD.open("/test.json", FILE_WRITE);
+
+  if (file) {
+    serializeJson(doc, file);
+    file.close();
+  } else {
+    Serial.println("Failed to open file for writing");
+  }
+}
 } // namespace Config

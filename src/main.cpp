@@ -47,11 +47,10 @@ void tft_lv_initialization() {
 
   static lv_color_t buf1[(LV_HOR_RES_MAX * LV_VER_RES_MAX) /
                          10]; // Declare a buffer for 1/10 screen siz
-  static lv_color_t buf2[(LV_HOR_RES_MAX * LV_VER_RES_MAX) /
-                         10]; // second buffer is optionnal
+  // static lv_color_t buf2[(LV_HOR_RES_MAX * LV_VER_RES_MAX) / 10];
 
   // Initialize `disp_buf` display buffer with the buffer(s).
-  lv_disp_draw_buf_init(&draw_buf, buf1, buf2,
+  lv_disp_draw_buf_init(&draw_buf, buf1, nullptr,
                         (LV_HOR_RES_MAX * LV_VER_RES_MAX) / 10);
 
   tft = &M5.Lcd;
@@ -118,27 +117,31 @@ void setup() {
   Config::loadConfig();
   Config::loadStocksFile();
 
-  // WiFi.begin(Config::g_WifiSsid.c_str(), Config::g_WifiPassword.c_str());
+  WiFi.begin(Config::g_WifiSsid.c_str(), Config::g_WifiPassword.c_str());
 
-  // while (WiFi.status() != WL_CONNECTED) {
-  //   delay(1000);
-  //   Serial.println("Connecting to WiFi...");
-  // }
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
 
-  // Serial.println("WiFi connected");
-  // Serial.print("IP address: ");
-  // Serial.println(WiFi.localIP());
+  Serial.println("WiFi connected");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
 
   MainScreen::init();
   Config::g_stocks.push_back(Stock{"AAPL", "Apple", 113.56});
   Config::g_stocks.push_back(Stock{"GOOGL", "Google", 2568.79});
 
-  StockAPI::testParse();
+  //StockAPI::testParse();
+
+  Serial.println(StockAPI::getMarketPrice("AAPL"));
+  Config::writeStocksFile();
 }
 
 void loop() {
   M5.update();
   lv_task_handler();
+
 
   MainScreen::update();
 }

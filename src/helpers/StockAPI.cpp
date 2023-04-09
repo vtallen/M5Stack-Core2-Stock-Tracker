@@ -61,19 +61,6 @@ String makeRequest(String url) {
 double getMarketPrice(String ticker) {
   String url = "https://query1.finance.yahoo.com/v8/finance/chart/" + ticker +
                "?interval=1d";
-  // HTTPClient http;
-  // http.begin(url);
-
-  // int httpCode = http.GET();
-  // double price{-1.0};
-
-  // if (httpCode > 0) {
-  //   String payload = http.getString();
-  //   DynamicJsonDocument doc(1024);
-  //   deserializeJson(doc, payload);
-
-  //   price = doc["chart"]["result"][0]["meta"]["regularMarketPrice"];
-  // }
 
   String payload{makeRequest(url)};
   if (payload == "-1")
