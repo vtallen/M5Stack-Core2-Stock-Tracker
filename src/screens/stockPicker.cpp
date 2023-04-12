@@ -2,6 +2,11 @@
 #include <lvgl.h>
 #include <string>
 
+#include "helpers/Stock.h"
+#include "helpers/StockAPI.h"
+
+#include "globalConfig.h"
+
 namespace StockPicker {
 // The screen to load when this screen is exited and the currently active screen
 lv_obj_t *back_screen;
@@ -47,12 +52,23 @@ lv_obj_t *roller5;
 
 std::string *ticker_value{};
 
-static void add_btn_cb(lv_event_t *event) {}
+bool isInited{false};
 
-static void cancel_btn_cb(lv_event_t *event) {
+void exit() {
   lv_scr_load(back_screen);
   lv_obj_del(stock_picker_screen);
+  isInited = false;
+  delete ticker_value;
 }
+
+static void add_btn_cb(lv_event_t *event) {
+  String tickerString{ticker_value->c_str()};
+  Config::g_stocks.push_back(
+      Stock{tickerString, StockAPI::getMarketPrice(tickerString)});
+  exit();
+}
+
+static void cancel_btn_cb(lv_event_t *event) { exit(); }
 
 static void roller_cb(lv_event_t *event) {
   lv_obj_t *rollers[] = {roller1, roller2, roller3, roller4, roller5};
@@ -68,6 +84,12 @@ static void roller_cb(lv_event_t *event) {
 }
 
 void init() {
+  // Return if we have already created the screen. This prevents memory leaks
+  if (isInited) {
+    return;
+  }
+
+  isInited = true;
   ticker_value = new std::string;
   back_screen = lv_scr_act();
 
@@ -137,6 +159,4 @@ std::string *get_ticker() {
                          "of ticker_value is nullptr");
   return ticker_value;
 }
-
-void exit() { delete ticker_value; }
 } // namespace StockPicker

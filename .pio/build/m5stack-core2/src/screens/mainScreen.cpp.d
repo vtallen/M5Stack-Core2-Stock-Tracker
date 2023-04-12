@@ -470,4 +470,5 @@
  .pio/libdeps/m5stack-core2/lvgl/src/extra/widgets/imgbtn/../../../lvgl.h \
  .pio/libdeps/m5stack-core2/lvgl/src/extra/widgets/span/lv_span.h \
  .pio/libdeps/m5stack-core2/lvgl/src/extra/widgets/span/../../../lvgl.h \
- src/globalConfig.h src/helpers/Stock.h src/screens/mainScreen.h
+ src/globalConfig.h src/helpers/Stock.h src/screens/mainScreen.h \
+ src/screens/stockPicker.h

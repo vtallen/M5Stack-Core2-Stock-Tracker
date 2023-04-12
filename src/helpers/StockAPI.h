@@ -6,10 +6,8 @@
 #include "globalConfig.h"
 
 namespace StockAPI {
-void testParse();
-
-double getMarketPrice(String ticker);
-void getTimeSeriesWeek();
+double getMarketPrice(const String &ticker);
+std::vector<double> getPriceSeriesWeek(const String &ticker);
 } // namespace StockAPI
 
 #endif

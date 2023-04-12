@@ -116,10 +116,8 @@ void loadStocksFile() {
   JsonArray stocks = doc.as<JsonArray>();
 
   for (JsonObject stock : stocks) {
-    g_stocks.push_back(
-        Stock{String(static_cast<const char *>(stock["ticker"])),
-              String(static_cast<const char *>(stock["company_name"])),
-              stock["price"]});
+    g_stocks.push_back(Stock{String(static_cast<const char *>(stock["ticker"])),
+                             static_cast<double>(stock["price"])});
   }
 
   dataFile.close();
@@ -129,20 +127,20 @@ void loadStocksFile() {
 
 void writeStocksFile() {
   SD.begin(4);
-  const size_t capacity {JSON_OBJECT_SIZE(g_stocks.size()) * JSON_OBJECT_SIZE(sizeof(Stock))};
+  const size_t capacity{JSON_OBJECT_SIZE(g_stocks.size()) *
+                        JSON_OBJECT_SIZE(sizeof(Stock))};
   DynamicJsonDocument doc(capacity);
 
-  JsonArray stockArray {doc.to<JsonArray>()};
+  JsonArray stockArray{doc.to<JsonArray>()};
 
-  for (auto& stock : g_stocks) {
-    JsonObject stockObj {stockArray.createNestedObject()};
+  for (auto &stock : g_stocks) {
+    JsonObject stockObj{stockArray.createNestedObject()};
 
     stockObj["ticker"] = stock.getTicker();
     stockObj["price"] = stock.getPrice();
-    stockObj["company_name"] = stock.getCompanyName();
   }
 
-  File file = SD.open("/test.json", FILE_WRITE);
+  File file = SD.open("/stocks.json", FILE_WRITE);
 
   if (file) {
     serializeJson(doc, file);

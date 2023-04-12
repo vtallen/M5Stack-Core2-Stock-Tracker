@@ -188,5 +188,13 @@ void loop() {
     lastAPICallTime = millis();
   }
 
+  // The stocks file will get written to the SD card every this many milliseconds
+  constexpr unsigned long millisStocksSaveInterval {300000};
+  static unsigned long lastStockSaveTime{0};
+  if ((millis() - lastStockSaveTime) > millisStocksSaveInterval) {
+    Config::writeStocksFile();
+  }
+
   MainScreen::update();
+  
 }
