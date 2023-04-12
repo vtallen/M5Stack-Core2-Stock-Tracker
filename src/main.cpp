@@ -1,3 +1,4 @@
+// https://query1.finance.yahoo.com/v8/finance/chart/AAPL?interval=1d&range=1wk
 #include <Arduino.h>
 #include <M5Core2.h>
 #include <SPI.h>
@@ -10,6 +11,7 @@
 #include "helpers/StockAPI.h"
 
 #include "screens/mainScreen.h"
+#include "screens/stockPicker.h"
 
 #define LV_HOR_RES_MAX 320
 #define LV_VER_RES_MAX 240
@@ -118,6 +120,8 @@ void setup() {
   Config::loadStocksFile();
 
   WiFi.begin(Config::g_WifiSsid.c_str(), Config::g_WifiPassword.c_str());
+  Serial.println(Config::g_WifiSsid.c_str());
+  Serial.println(Config::g_WifiPassword.c_str());
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
@@ -129,19 +133,60 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   MainScreen::init();
-  Config::g_stocks.push_back(Stock{"AAPL", "Apple", 113.56});
-  Config::g_stocks.push_back(Stock{"GOOGL", "Google", 2568.79});
+  // Config::g_stocks.push_back(Stock{"VOO", 2000.56});
+  // Config::g_stocks.push_back(Stock{"GOOGL", "Google", 2568.79});
 
-  //StockAPI::testParse();
+  // StockAPI::testParse();
 
-  Serial.println(StockAPI::getMarketPrice("AAPL"));
-  Config::writeStocksFile();
+  // Config::writeStocksFile();
+  StockAPI::getPriceSeriesWeek("AAPL");
 }
 
 void loop() {
   M5.update();
   lv_task_handler();
 
+  // Bring up the stock picker if the rightmost capacitive button is pressed.
+  if (M5.BtnA.wasPressed()) {
+
+  } else if (M5.BtnB.wasPressed()) {
+
+  } else if (M5.BtnC.wasPressed()) {
+    StockPicker::init();
+  }
+
+  // StockAPI request scheduling code
+  constexpr int APICallsPerMinute{5};
+  // It takes 2 API calls to Yahoo finance in order to update the data of one
+  // stock. Therefore we can use the below formula to calculate the number of
+  // milliseconds there needs to be between updating each stock.
+  static const int millisBetweenAPICalls{60000 / (APICallsPerMinute / 2)};
+
+  static unsigned long lastAPICallTime{0};
+  static int currentStockIndex{0};
+
+  if ((millis() - lastAPICallTime) > millisBetweenAPICalls) {
+    // First check that the stock we are going to update next has not been
+    // removed, if it has, start back at the beginning.
+    if (!(currentStockIndex > Config::g_stocks.size())) {
+
+      Stock &currentStock{Config::g_stocks.at(currentStockIndex)};
+      currentStock.setPrice(StockAPI::getMarketPrice(currentStock.getTicker()));
+      currentStock.setWeeklyPriceSeries(
+          StockAPI::getPriceSeriesWeek(currentStock.getTicker()));
+
+      // Making sure the next stock exists
+      if ((currentStockIndex + 1) < Config::g_stocks.size()) {
+        ++currentStockIndex;
+      } else {
+        currentStockIndex = 0;
+      }
+    } else {
+      currentStockIndex = 0;
+    }
+
+    lastAPICallTime = millis();
+  }
 
   MainScreen::update();
 }
