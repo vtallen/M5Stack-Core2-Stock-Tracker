@@ -67,7 +67,8 @@ void init() {
   lv_obj_align(price_label, LV_ALIGN_TOP_LEFT, 10, 55);
 
   dailyChangeLabel = lv_label_create(lv_scr_act());
-  lv_obj_set_style_text_font(dailyChangeLabel, &lv_font_montserrat_24, LV_PART_MAIN);
+  lv_obj_set_style_text_font(dailyChangeLabel, &lv_font_montserrat_24,
+                             LV_PART_MAIN);
   lv_obj_align(dailyChangeLabel, LV_ALIGN_TOP_RIGHT, -10, 76);
 
   price_chart = lv_chart_create(lv_scr_act());
@@ -82,12 +83,18 @@ void update() {
   static unsigned long lastUpdateTime{0};
   static int currentStockIndex{0};
 
+  // If the user has not entered any stocks yet, updating the main screen will
+  // cause a crash
+  if (Config::g_stocks.size() == 0) {
+    return;
+  }
+
   if (((millis() - lastUpdateTime) > Config::g_timeBetweenStockSwitches) ||
       lastUpdateTime == 0) {
     unsigned int numStocks{Config::g_stocks.size()};
-    Stock &currentStock {Config::g_stocks.at(currentStockIndex)};
-    
-    double currentStockDailyChange {currentStock.getChangeDaily()};
+    Stock &currentStock{Config::g_stocks.at(currentStockIndex)};
+
+    double currentStockDailyChange{currentStock.getChangeDaily()};
 
     ticker = currentStock.getTicker();
     lv_label_set_text(ticker_label, ticker.c_str());
@@ -97,11 +104,16 @@ void update() {
 
     dailyChange = String(currentStockDailyChange);
     lv_label_set_text(dailyChangeLabel, dailyChange.c_str());
-    // Determine if the stock is up or down, then set the color of the change label accordingly
-    auto dailyChangeColor {(currentStockDailyChange > 0)? lv_palette_main(LV_PALETTE_GREEN) : lv_palette_main(LV_PALETTE_RED)};
-    lv_obj_set_style_text_color(dailyChangeLabel, dailyChangeColor, LV_PART_MAIN);
+    // Determine if the stock is up or down, then set the color of the change
+    // label accordingly
+    auto dailyChangeColor{(currentStockDailyChange > 0)
+                              ? lv_palette_main(LV_PALETTE_GREEN)
+                              : lv_palette_main(LV_PALETTE_RED)};
+    lv_obj_set_style_text_color(dailyChangeLabel, dailyChangeColor,
+                                LV_PART_MAIN);
 
-    drawChart(currentStock.getWeeklyPriceSeries(), (currentStockDailyChange > 0));
+    drawChart(currentStock.getWeeklyPriceSeries(),
+              (currentStockDailyChange > 0));
 
     if ((currentStockIndex + 1) < numStocks) {
       ++currentStockIndex;
