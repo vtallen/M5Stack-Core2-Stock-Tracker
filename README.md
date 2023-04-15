@@ -1,7 +1,9 @@
 # A Stock Tracking app for the M5Stack Core 2
 ---
 This is a simple application written for the ESP32 micro controller that uses Yahoo Finance to display the price of stocks on a screen.
-<img src="images/add_screen.jpg?raw=true" width=25% height=25%>
+
+
+<img src="images/main_screen.jpg?raw=true" width=25% height=25%>
 ## Setup and installation
 ---
 1. Clone this repository to your computer
