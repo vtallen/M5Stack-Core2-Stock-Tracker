@@ -4,3 +4,4 @@
 .vscode/ipch
 .pio
 .DS_Store
+.pio/build/m5stack-core2/.sconsign311.dblite
