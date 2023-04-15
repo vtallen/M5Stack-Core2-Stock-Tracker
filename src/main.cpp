@@ -131,24 +131,8 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-  //
-  // Config::g_stocks.push_back(Stock{"VOO", 2000.56});
-  // Config::g_stocks.push_back(Stock{"MSFT"});
-  // Config::g_stocks.push_back(Stock{"AAPL"});
-  // Config::g_stocks.push_back(Stock{"VYM"});
-  // Config::g_stocks.push_back(Stock{"VTI"});
-  // Config::writeStocksFile();
-  // Config::loadStocksFile();
-  //
 
-  
-  // Config::writeStocksFile();
   MainScreen::init();
-
-  // StockAPI::testParse();
-
-  // Config::writeStocksFile();
-  // StockRemover::init();
 }
 
 void loop() {
@@ -199,13 +183,6 @@ void loop() {
       lastAPICallTime = millis();
     }
 
-    // // The stocks file will get written to the SD card every this many
-    // // milliseconds
-    // constexpr unsigned long millisStocksSaveInterval{300000};
-    // static unsigned long lastStockSaveTime{0};
-    // if ((millis() - lastStockSaveTime) > millisStocksSaveInterval) {
-    //   Config::writeStocksFile();
-    // }
   } else {
     StockPicker::init();
   }
