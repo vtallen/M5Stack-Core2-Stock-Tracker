@@ -12,6 +12,7 @@
 
 #include "screens/mainScreen.h"
 #include "screens/stockPicker.h"
+#include "screens/stockRemover.h"
 
 #define LV_HOR_RES_MAX 320
 #define LV_VER_RES_MAX 240
@@ -44,7 +45,6 @@ static void btnPowerOff_event(lv_event_t *event) { M5.Axp.PowerOff(); }
 
 void tft_lv_initialization() {
   M5.begin();
-
   lv_init();
 
   static lv_color_t buf1[(LV_HOR_RES_MAX * LV_VER_RES_MAX) /
@@ -131,70 +131,83 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-
-  MainScreen::init();
+  //
   // Config::g_stocks.push_back(Stock{"VOO", 2000.56});
-  // Config::g_stocks.push_back(Stock{"GOOGL", "Google", 2568.79});
+  // Config::g_stocks.push_back(Stock{"MSFT"});
+  // Config::g_stocks.push_back(Stock{"AAPL"});
+  // Config::g_stocks.push_back(Stock{"VYM"});
+  // Config::g_stocks.push_back(Stock{"VTI"});
+  // Config::writeStocksFile();
+  // Config::loadStocksFile();
+  //
+
+  
+  // Config::writeStocksFile();
+  MainScreen::init();
 
   // StockAPI::testParse();
 
   // Config::writeStocksFile();
-  StockAPI::getPriceSeriesWeek("AAPL");
+  // StockRemover::init();
 }
 
 void loop() {
   M5.update();
   lv_task_handler();
 
-  // Bring up the stock picker if the rightmost capacitive button is pressed.
-  if (M5.BtnA.wasPressed()) {
+  if (Config::g_stocks.size() > 0) {
+    // Bring up the stock picker if the rightmost capacitive button is pressed.
+    if (M5.BtnA.wasPressed()) {
+      StockRemover::init();
+    } else if (M5.BtnB.wasPressed()) {
 
-  } else if (M5.BtnB.wasPressed()) {
+    } else if (M5.BtnC.wasPressed()) {
+      StockPicker::init();
+    }
 
-  } else if (M5.BtnC.wasPressed()) {
-    StockPicker::init();
-  }
+    // StockAPI request scheduling code
+    constexpr int APICallsPerMinute{5};
+    // It takes 2 API calls to Yahoo finance in order to update the data of one
+    // stock. Therefore we can use the below formula to calculate the number of
+    // milliseconds there needs to be between updating each stock.
+    static const int millisBetweenAPICalls{60000 / (APICallsPerMinute / 2)};
 
-  // StockAPI request scheduling code
-  constexpr int APICallsPerMinute{5};
-  // It takes 2 API calls to Yahoo finance in order to update the data of one
-  // stock. Therefore we can use the below formula to calculate the number of
-  // milliseconds there needs to be between updating each stock.
-  static const int millisBetweenAPICalls{60000 / (APICallsPerMinute / 2)};
+    static unsigned long lastAPICallTime{0};
+    static int currentStockIndex{0};
 
-  static unsigned long lastAPICallTime{0};
-  static int currentStockIndex{0};
+    if ((millis() - lastAPICallTime) > millisBetweenAPICalls) {
+      // First check that the stock we are going to update next has not been
+      // removed, if it has, start back at the beginning.
+      if (!(currentStockIndex > Config::g_stocks.size())) {
 
-  if ((millis() - lastAPICallTime) > millisBetweenAPICalls) {
-    // First check that the stock we are going to update next has not been
-    // removed, if it has, start back at the beginning.
-    if (!(currentStockIndex > Config::g_stocks.size())) {
+        Stock &currentStock{Config::g_stocks.at(currentStockIndex)};
+        currentStock.setPrice(
+            StockAPI::getMarketPrice(currentStock.getTicker()));
+        currentStock.setWeeklyPriceSeries(
+            StockAPI::getPriceSeriesWeek(currentStock.getTicker()));
 
-      Stock &currentStock{Config::g_stocks.at(currentStockIndex)};
-      currentStock.setPrice(StockAPI::getMarketPrice(currentStock.getTicker()));
-      currentStock.setWeeklyPriceSeries(
-          StockAPI::getPriceSeriesWeek(currentStock.getTicker()));
-
-      // Making sure the next stock exists
-      if ((currentStockIndex + 1) < Config::g_stocks.size()) {
-        ++currentStockIndex;
+        // Making sure the next stock exists
+        if ((currentStockIndex + 1) < Config::g_stocks.size()) {
+          ++currentStockIndex;
+        } else {
+          currentStockIndex = 0;
+        }
       } else {
         currentStockIndex = 0;
       }
-    } else {
-      currentStockIndex = 0;
+
+      lastAPICallTime = millis();
     }
 
-    lastAPICallTime = millis();
+    // // The stocks file will get written to the SD card every this many
+    // // milliseconds
+    // constexpr unsigned long millisStocksSaveInterval{300000};
+    // static unsigned long lastStockSaveTime{0};
+    // if ((millis() - lastStockSaveTime) > millisStocksSaveInterval) {
+    //   Config::writeStocksFile();
+    // }
+  } else {
+    StockPicker::init();
   }
-
-  // The stocks file will get written to the SD card every this many milliseconds
-  constexpr unsigned long millisStocksSaveInterval {300000};
-  static unsigned long lastStockSaveTime{0};
-  if ((millis() - lastStockSaveTime) > millisStocksSaveInterval) {
-    Config::writeStocksFile();
-  }
-
   MainScreen::update();
-  
 }

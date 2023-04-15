@@ -9,7 +9,7 @@
 namespace Config {
 String g_WifiSsid{};
 String g_WifiPassword{};
-String g_AlphaVantageKey{};
+// String g_AlphaVantageKey{};
 int g_timeBetweenStockSwitches{};
 std::vector<Stock> g_stocks{};
 
@@ -18,6 +18,7 @@ void loadConfig() {
 
   if (!file) {
     Serial.print("Config::load_config() - Error opening file: /config.json");
+    file.close();
     return;
   }
 
@@ -34,7 +35,7 @@ void loadConfig() {
 
   const char *wifi_ssid = doc["WIFI_SSID"];
   const char *wifi_password = doc["WIFI_PASSWORD"];
-  const char *alpha_vantage_key = doc["ALPHA_VANTAGE_KEY"];
+  // const char *alpha_vantage_key = doc["ALPHA_VANTAGE_KEY"];
   const int seconds_between_stock_switches =
       doc["SECONDS_BETWEEN_STOCK_SWITCHES"];
 
@@ -53,12 +54,13 @@ void loadConfig() {
     g_WifiPassword = String(wifi_password);
   }
 
-  if (alpha_vantage_key == nullptr) {
-    Serial.println(
-        "Config::load_config() - ALPHA_VANTAGE_KEY not present in config.json");
-  } else {
-    g_AlphaVantageKey = String(alpha_vantage_key);
-  }
+  // if (alpha_vantage_key == nullptr) {
+  //   Serial.println(
+  //       "Config::load_config() - ALPHA_VANTAGE_KEY not present in
+  //       config.json");
+  // } else {
+  //   g_AlphaVantageKey = String(alpha_vantage_key);
+  // }
 
   if (seconds_between_stock_switches == 0) {
     Serial.println("Config::load_config() - SECONDS_BETWEEN_STOCK_SWITCHES not "
@@ -77,17 +79,11 @@ Example JSON document:
 [
 {
   "ticker": "AAPL",
-  "company_name": "Apple",
-  "price": 132.03,
-  "change_day": -0.81,
-  "volume": 88651257
+  "price": 132.03
 },
 {
   "ticker": "GOOGL",
-  "company_name":"Google",
-  "price": 2112.42,
-  "change_day": 14.78,
-  "volume": 1162407
+  "price": 2112.42
 }
 ]
 */
@@ -122,11 +118,11 @@ void loadStocksFile() {
 
   dataFile.close();
 
-  SD.end();
+  // SD.end();
 }
 
 void writeStocksFile() {
-  SD.begin(4);
+  SD.begin();
   const size_t capacity{JSON_OBJECT_SIZE(g_stocks.size()) *
                         JSON_OBJECT_SIZE(sizeof(Stock))};
   DynamicJsonDocument doc(capacity);

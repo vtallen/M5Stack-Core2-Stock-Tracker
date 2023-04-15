@@ -65,6 +65,8 @@ static void add_btn_cb(lv_event_t *event) {
   String tickerString{ticker_value->c_str()};
   Config::g_stocks.push_back(
       Stock{tickerString, StockAPI::getMarketPrice(tickerString)});
+
+  Config::writeStocksFile();
   exit();
 }
 

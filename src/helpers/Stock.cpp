@@ -2,6 +2,11 @@
 
 #include "helpers/Stock.h"
 
+bool Stock::operator==(const Stock stock) { return stock.m_ticker == m_ticker; }
+bool Stock::operator==(const Stock *stock) {
+  return m_ticker == stock->m_ticker;
+}
+
 String const &Stock::getCompanyName() { return m_company_name; }
 
 String Stock::getTicker() { return m_ticker; };
