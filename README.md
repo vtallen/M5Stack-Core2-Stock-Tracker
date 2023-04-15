@@ -29,3 +29,4 @@ Finally, connect your M5Core2 and and select the upload button in VS Code.
 Upon first boot you will be asked to select a stock ticker. Use the rollers to enter it and click add. It will take a moment for the graphs to be filled in as the project is setup to only make 5 API calls per minute. This helps mitigate your IP address getting rate limited by Yahoo.
 
 To add another stock, click the rightmost button on the M5Core2. To remove stocks, click the leftmost button.
+<img src="images/add_screen.jpg?raw=true" width=50% height=50%><img src="images/remove_screen.jpg?raw=true" width=50% height=50%>
