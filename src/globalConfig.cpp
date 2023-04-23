@@ -9,7 +9,6 @@
 namespace Config {
 String g_WifiSsid{};
 String g_WifiPassword{};
-// String g_AlphaVantageKey{};
 int g_timeBetweenStockSwitches{};
 std::vector<Stock> g_stocks{};
 
@@ -35,7 +34,6 @@ void loadConfig() {
 
   const char *wifi_ssid = doc["WIFI_SSID"];
   const char *wifi_password = doc["WIFI_PASSWORD"];
-  // const char *alpha_vantage_key = doc["ALPHA_VANTAGE_KEY"];
   const int seconds_between_stock_switches =
       doc["SECONDS_BETWEEN_STOCK_SWITCHES"];
 
@@ -53,14 +51,6 @@ void loadConfig() {
   } else {
     g_WifiPassword = String(wifi_password);
   }
-
-  // if (alpha_vantage_key == nullptr) {
-  //   Serial.println(
-  //       "Config::load_config() - ALPHA_VANTAGE_KEY not present in
-  //       config.json");
-  // } else {
-  //   g_AlphaVantageKey = String(alpha_vantage_key);
-  // }
 
   if (seconds_between_stock_switches == 0) {
     Serial.println("Config::load_config() - SECONDS_BETWEEN_STOCK_SWITCHES not "
@@ -117,8 +107,6 @@ void loadStocksFile() {
   }
 
   dataFile.close();
-
-  // SD.end();
 }
 
 void writeStocksFile() {

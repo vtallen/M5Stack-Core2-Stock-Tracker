@@ -4,6 +4,5 @@
 namespace StockPicker {
 void init();
 void exit();
-String *get_ticker();
 } // namespace StockPicker
 #endif

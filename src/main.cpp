@@ -17,31 +17,14 @@
 #define LV_HOR_RES_MAX 320
 #define LV_VER_RES_MAX 240
 
-// init the tft espi
+// The code to get LVGL working was obtained from
+// https://forum.m5stack.com/topic/3613/how-to-run-lvgl-on-m5stack/31 by user
+// JackRazors
 static lv_disp_draw_buf_t draw_buf;
-static lv_disp_drv_t disp_drv;   // Descriptor of a display driver
-static lv_indev_drv_t indev_drv; // Descriptor of a touch driver
+static lv_disp_drv_t disp_drv;
+static lv_indev_drv_t indev_drv;
 
 M5Display *tft;
-
-static void ta_event_cb(lv_event_t *e);
-static lv_obj_t *kb;
-
-static void ta_event_cb(lv_event_t *e) {
-  lv_event_code_t code = lv_event_get_code(e);
-  lv_obj_t *ta = lv_event_get_target(e);
-  if (code == LV_EVENT_CLICKED || code == LV_EVENT_FOCUSED) {
-    /*Focus on the clicked text area*/
-    if (kb != NULL)
-      lv_keyboard_set_textarea(kb, ta);
-  }
-
-  else if (code == LV_EVENT_READY) {
-    LV_LOG_USER("Ready, current text: %s", lv_textarea_get_text(ta));
-  }
-}
-
-static void btnPowerOff_event(lv_event_t *event) { M5.Axp.PowerOff(); }
 
 void tft_lv_initialization() {
   M5.begin();
@@ -58,7 +41,6 @@ void tft_lv_initialization() {
   tft = &M5.Lcd;
 }
 
-// Display flushing
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area,
                    lv_color_t *color_p) {
   uint32_t w = (area->x2 - area->x1 + 1);
@@ -73,18 +55,15 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area,
 }
 
 void init_disp_driver() {
-  lv_disp_drv_init(&disp_drv); // Basic initialization
+  lv_disp_drv_init(&disp_drv);
 
-  disp_drv.flush_cb = my_disp_flush; // Set your driver function
-  disp_drv.draw_buf = &draw_buf;     // Assign the buffer to the display
-  disp_drv.hor_res =
-      LV_HOR_RES_MAX; // Set the horizontal resolution of the display
-  disp_drv.ver_res =
-      LV_VER_RES_MAX; // Set the vertical resolution of the display
+  disp_drv.flush_cb = my_disp_flush;
+  disp_drv.draw_buf = &draw_buf;
+  disp_drv.hor_res = LV_HOR_RES_MAX;
+  disp_drv.ver_res = LV_VER_RES_MAX;
 
-  lv_disp_drv_register(&disp_drv); // Finally register the driver
-  lv_disp_set_bg_color(
-      NULL, lv_color_hex3(0x000)); // Set default background color to black
+  lv_disp_drv_register(&disp_drv);
+  lv_disp_set_bg_color(NULL, lv_color_hex3(0x000));
 }
 
 void my_touchpad_read(lv_indev_drv_t *drv, lv_indev_data_t *data) {
@@ -106,7 +85,7 @@ void init_touch_driver() {
   lv_indev_drv_init(&indev_drv);
   indev_drv.type = LV_INDEV_TYPE_POINTER;
   indev_drv.read_cb = my_touchpad_read;
-  lv_indev_t *my_indev = lv_indev_drv_register(&indev_drv); // register
+  lv_indev_t *my_indev = lv_indev_drv_register(&indev_drv);
 }
 
 void setup() {

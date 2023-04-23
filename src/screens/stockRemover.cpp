@@ -41,7 +41,6 @@ void deleteBtnCb(lv_event_t *e) {
 
   StockLineItem *currentLineItem{static_cast<StockLineItem *>(e->user_data)};
 
-  // Serial.println(currentLineItem->stock->getTicker().c_str());
   auto stockIt{std::find(Config::g_stocks.begin(), Config::g_stocks.end(),
                          currentLineItem->stock)};
   Config::g_stocks.erase(stockIt);
